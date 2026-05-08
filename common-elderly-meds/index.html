@@ -6,7 +6,7 @@
 <title>老年人常见病用药清单</title>
 <style>
 body{font-family:system-ui,sans-serif;max-width:960px;margin:0 auto;padding:0 1rem;background:#fff;color:#111}
-.sticky-header{position:sticky;top:0;z-index:100;background:#fff;padding:1rem 0 0.75rem;border-bottom:1px solid #eee;margin-bottom:1.25rem}
+.sticky-header{position:sticky;top:0;z-index:100;background:#fff;padding:0.75rem 0 0.6rem;border-bottom:1px solid #eee;margin-bottom:1.25rem}
 h1{font-size:18px;font-weight:500;margin-bottom:1.5rem}
 .ch{display:flex;align-items:center;gap:10px;margin:1.5rem 0 0.75rem;cursor:pointer;user-select:none;padding-bottom:6px;border-bottom:1px solid #eee}
 .badge{font-size:13px;font-weight:500;padding:2px 10px;border-radius:6px}
@@ -62,7 +62,7 @@ mark{background:#fff176;border-radius:2px;padding:0 1px}
 <div class="disc">本清单仅供参考，具体用药须遵医嘱，不可自行调整剂量或停药。</div>
 <script>
 const DATA=[
-{cat:"高血压",nav:"高血压",bg:"#E6F1FB",tc:"#0C447C",bc:"#b5d4f4",drugs:[
+{cat:"血压",nav:"血压",bg:"#E6F1FB",tc:"#0C447C",bc:"#b5d4f4",drugs:[
 {n:"氨氯地平（络活喜）",e:"amlodipine · Norvasc",r:"钙离子拮抗剂，长效，每日1次",
  t:"Calcium Channel Blocker",d:"2.5–10 mg once daily, any time",s:"Ankle swelling, flushing, headache",i:"Grapefruit juice; high-dose simvastatin"},
 {n:"硝苯地平缓释片（拜新同）",e:"nifedipine ER · Procardia XL",r:"钙拮抗剂，缓释剂型",
@@ -76,7 +76,7 @@ const DATA=[
 {n:"氢氯噻嗪（双氢克尿噻）",e:"hydrochlorothiazide · Microzide",r:"利尿剂，常联合用药",
  t:"Thiazide Diuretic",d:"12.5–25 mg once daily in the morning",s:"Hypokalemia, hyperuricemia, photosensitivity, glucose elevation",i:"Lithium; NSAIDs; digoxin (potassium loss)"},
 ]},
-{cat:"高血脂",nav:"高血脂",bg:"#FAEEDA",tc:"#633806",bc:"#FAC775",drugs:[
+{cat:"血脂",nav:"血脂",bg:"#FAEEDA",tc:"#633806",bc:"#FAC775",drugs:[
 {n:"阿托伐他汀（立普妥）",e:"atorvastatin · Lipitor",r:"他汀类，降LDL首选",
  t:"Statin (HMG-CoA Reductase Inhibitor)",d:"10–80 mg once daily, any time",s:"Myalgia, elevated liver enzymes, rare rhabdomyolysis",i:"Grapefruit juice; clarithromycin; itraconazole; cyclosporine"},
 {n:"瑞舒伐他汀（可定）",e:"rosuvastatin · Crestor",r:"强效他汀，睡前或晨服",
@@ -86,7 +86,7 @@ const DATA=[
 {n:"依折麦布（益适纯）",e:"ezetimibe · Zetia",r:"抑制肠道胆固醇吸收，常联合他汀",
  t:"Cholesterol Absorption Inhibitor",d:"10 mg once daily, any time",s:"Joint pain, diarrhea, fatigue",i:"Bile acid sequestrants (take 2 hrs apart); cyclosporine"},
 ]},
-{cat:"高血糖（2型糖尿病）",nav:"高血糖",bg:"#EAF3DE",tc:"#27500A",bc:"#C0DD97",drugs:[
+{cat:"血糖",nav:"血糖",bg:"#EAF3DE",tc:"#27500A",bc:"#C0DD97",drugs:[
 {n:"二甲双胍（格华止）",e:"metformin · Glucophage",r:"一线首选，餐后服减少胃肠反应",
  t:"Biguanide",d:"500–2000 mg daily, taken with or after meals",s:"Nausea, diarrhea, B12 deficiency (long-term)",i:"Contrast dye (hold 48 hrs before imaging); alcohol; iodinated contrast"},
 {n:"格列美脲（亚莫利）/ 格列齐特（达美康）",e:"glimepiride / gliclazide · Amaryl",r:"磺脲类，促进胰岛素分泌",
@@ -148,7 +148,7 @@ const DATA=[
 {n:"骨化三醇（罗盖全）",e:"calcitriol · Rocaltrol",r:"活性维生素D，促进钙吸收",
  t:"Active Vitamin D (Calcitriol)",d:"0.25–0.5 mcg once or twice daily",s:"Hypercalcemia, hypercalciuria, weakness",i:"Thiazide diuretics (hypercalcemia); magnesium antacids; cholestyramine"},
 ]},
-{cat:"抗感染 / 抗病毒",nav:"病毒感染",bg:"#FFF0E6",tc:"#7A2E00",bc:"#FFBB8A",drugs:[
+{cat:"感染",nav:"感染",bg:"#FFF0E6",tc:"#7A2E00",bc:"#FFBB8A",drugs:[
 {n:"阿莫西林（阿莫仙）",e:"amoxicillin · Amoxil",r:"青霉素类，常见细菌感染首选",
  t:"Penicillin Antibiotic",d:"250–500 mg three times daily; complete full course",s:"Diarrhea, nausea, rash, allergic reaction",i:"Penicillin allergy (contraindicated); methotrexate; warfarin"},
 {n:"头孢呋辛（西力欣）/ 头孢克洛（可福乐）",e:"cefuroxime / cefaclor · Zinacef / Ceclor",r:"第二代头孢，呼吸道及泌尿道感染",
@@ -164,7 +164,7 @@ const DATA=[
 {n:"甲硝唑（灭滴灵）",e:"metronidazole · Flagyl",r:"厌氧菌及原虫感染，注意神经毒性",
  t:"Nitroimidazole Antibiotic",d:"400–500 mg three times daily for 7–10 days; take with or after food",s:"Metallic taste, nausea, peripheral neuropathy (long-term), dark urine",i:"Alcohol (disulfiram-like reaction — avoid during and 48 hrs after); warfarin; lithium"},
 ]},
-{cat:"抗过敏",nav:"抗过敏",bg:"#F3EBF9",tc:"#4A1570",bc:"#D6AEED",drugs:[
+{cat:"过敏",nav:"过敏",bg:"#F3EBF9",tc:"#4A1570",bc:"#D6AEED",drugs:[
 {n:"氯雷他定（开瑞坦）",e:"loratadine · Claritin",r:"第二代抗组胺，无嗜睡，每日1次",
  t:"2nd-Gen Antihistamine (H1 Blocker)",d:"10 mg once daily, any time",s:"Headache, dry mouth, fatigue (minimal sedation)",i:"Ketoconazole / erythromycin (increase levels); CNS depressants"},
 {n:"西替利嗪（仙特明）",e:"cetirizine · Zyrtec",r:"第二代抗组胺，轻微镇静",
