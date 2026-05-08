@@ -1,4 +1,4 @@
 # medint 
 everything about medical interpretation
 
-👉 [common elderly mads](medint.interpretersmemory.org/common-elderly-meds/)
+👉 [common elderly meds](medint.interpretersmemory.org/common-elderly-meds/)
