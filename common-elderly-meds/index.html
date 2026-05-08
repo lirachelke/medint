@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>老年人常见病用药清单</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:960px;margin:2rem auto;padding:0 1rem;background:#fff;color:#111}
+h1{font-size:18px;font-weight:500;margin-bottom:1.5rem}
+.ch{display:flex;align-items:center;gap:10px;margin:1.5rem 0 0.75rem;cursor:pointer;user-select:none;padding-bottom:6px;border-bottom:1px solid #eee}
+.badge{font-size:13px;font-weight:500;padding:2px 10px;border-radius:6px}
+.cnt{font-size:12px;color:#888;margin-left:4px}
+.arr{font-size:11px;color:#aaa;margin-left:auto;transition:transform 0.2s}
+.arr.open{transform:rotate(90deg)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px;margin-bottom:0.5rem}
+
+/* flip card container */
+.card{perspective:900px;cursor:pointer;min-height:130px}
+.card.hidden{display:none}
+.card-inner{position:relative;width:100%;height:100%;min-height:130px;transform-style:preserve-3d;transition:transform 0.45s ease,box-shadow 0.2s,top 0.2s;border-radius:8px;top:0;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.card:hover .card-inner{top:-4px;box-shadow:0 8px 20px rgba(0,0,0,.13)}
+.card:hover .card-front,.card:hover .card-back{background:var(--cat-bg,#fff);transition:background 0.2s}
+.card.flipped .card-inner{transform:rotateY(180deg)}
+.card-front,.card-back{position:absolute;width:100%;min-height:130px;box-sizing:border-box;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:8px;padding:10px 12px;border:1px solid #e8e8e8;background:#fff}
+.card-back{transform:rotateY(180deg);background:#fafbff}
+
+/* front face */
+.cn{font-size:14px;font-weight:500;color:var(--cat-tc,#111);margin-bottom:2px}
+.en{font-size:12px;color:#888;font-style:italic;margin-bottom:6px}
+.note{font-size:12px;color:#666;line-height:1.5;border-top:1px solid #f0f0f0;padding-top:6px}
+.flip-hint{font-size:10px;color:#bbb;text-align:right;margin-top:6px}
+
+/* back face */
+.bk-type{font-size:11px;font-weight:600;color:#555;background:#f0f0f0;border-radius:4px;padding:2px 7px;display:inline-block;margin-bottom:8px}
+.bk-row{font-size:12px;line-height:1.55;margin-bottom:5px}
+.bk-dose{color:#2a7a3b;font-weight:600}
+.bk-side{color:#9a6c00;font-weight:600}
+.bk-avoid{color:#b94040;font-weight:600}
+.dose{font-size:12px;color:#2a7a3b;font-weight:600;line-height:1.5;margin-top:5px}
+
+/* search */
+.search-wrap{margin-bottom:1.5rem}
+#search{width:100%;box-sizing:border-box;padding:9px 14px;font-size:14px;border:1px solid #ddd;border-radius:8px;outline:none;background:#fafafa}
+#search:focus{border-color:#aaa;background:#fff}
+mark{background:#fff176;border-radius:2px;padding:0 1px}
+
+.disc{font-size:12px;color:#888;background:#f8f8f8;border-radius:8px;padding:10px 14px;margin-top:1.5rem;line-height:1.6}
+.nav{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:1.5rem}
+.nav-btn{font-size:13px;font-weight:500;padding:4px 12px;border-radius:6px;cursor:pointer;border:1px solid;transition:opacity 0.15s,transform 0.15s;text-decoration:none}
+.nav-btn:hover{opacity:0.8;transform:translateY(-1px)}
+</style>
+</head>
+<body>
+<div class="search-wrap">
+  <input id="search" type="text" placeholder="🔍" autocomplete="off">
+</div>
+<div class="nav" id="nav"></div>
+<div id="app"></div>
+<div class="disc">本清单仅供参考，具体用药须遵医嘱，不可自行调整剂量或停药。</div>
+<script>
+const DATA=[
+{cat:"高血压",nav:"高血压",bg:"#E6F1FB",tc:"#0C447C",bc:"#b5d4f4",drugs:[
+{n:"氨氯地平（络活喜）",e:"amlodipine · Norvasc",r:"钙离子拮抗剂，长效，每日1次",
+ t:"Calcium Channel Blocker",d:"2.5–10 mg once daily, any time",s:"Ankle swelling, flushing, headache",i:"Grapefruit juice; high-dose simvastatin"},
+{n:"硝苯地平缓释片（拜新同）",e:"nifedipine ER · Procardia XL",r:"钙拮抗剂，缓释剂型",
+ t:"Calcium Channel Blocker (ER)",d:"30–90 mg once daily with breakfast",s:"Flushing, headache, ankle edema",i:"Grapefruit juice; rifampicin"},
+{n:"缬沙坦（代文）/ 厄贝沙坦（安博维）",e:"valsartan / irbesartan · Diovan / Avapro",r:"ARB类，保护肾脏",
+ t:"ARB (Angiotensin Receptor Blocker)",d:"80–320 mg once daily",s:"Dizziness, hyperkalemia, elevated creatinine",i:"ACE inhibitors; potassium supplements; NSAIDs"},
+{n:"培哚普利（雅施达）/ 依那普利（悦宁定）",e:"perindopril / enalapril · Aceon / Vasotec",r:"ACEI类，注意干咳副作用",
+ t:"ACE Inhibitor",d:"4–8 mg / 5–20 mg once daily",s:"Dry cough, dizziness, hyperkalemia, angioedema",i:"ARBs; potassium supplements; NSAIDs; lithium"},
+{n:"美托洛尔（倍他乐克）",e:"metoprolol · Lopressor / Toprol-XL",r:"β受体阻滞剂，合并心率快时用",
+ t:"Beta-Blocker (β1-selective)",d:"25–100 mg twice daily (IR) or 50–200 mg once daily (ER)",s:"Fatigue, bradycardia, cold extremities, depression",i:"Verapamil; diltiazem; MAOIs; clonidine"},
+{n:"氢氯噻嗪（双氢克尿噻）",e:"hydrochlorothiazide · Microzide",r:"利尿剂，常联合用药",
+ t:"Thiazide Diuretic",d:"12.5–25 mg once daily in the morning",s:"Hypokalemia, hyperuricemia, photosensitivity, glucose elevation",i:"Lithium; NSAIDs; digoxin (potassium loss)"},
+]},
+{cat:"高血脂",nav:"高血脂",bg:"#FAEEDA",tc:"#633806",bc:"#FAC775",drugs:[
+{n:"阿托伐他汀（立普妥）",e:"atorvastatin · Lipitor",r:"他汀类，降LDL首选",
+ t:"Statin (HMG-CoA Reductase Inhibitor)",d:"10–80 mg once daily, any time",s:"Myalgia, elevated liver enzymes, rare rhabdomyolysis",i:"Grapefruit juice; clarithromycin; itraconazole; cyclosporine"},
+{n:"瑞舒伐他汀（可定）",e:"rosuvastatin · Crestor",r:"强效他汀，睡前或晨服",
+ t:"Statin (HMG-CoA Reductase Inhibitor)",d:"5–40 mg once daily",s:"Myalgia, headache, rare rhabdomyolysis",i:"Antacids (take 2 hrs apart); warfarin; cyclosporine"},
+{n:"非诺贝特（力平之）",e:"fenofibrate · Tricor",r:"贝特类，主降甘油三酯",
+ t:"Fibrate",d:"145 mg once daily with a meal",s:"GI upset, gallstones, myopathy (with statins)",i:"Statins (rhabdomyolysis risk); warfarin; cyclosporine"},
+{n:"依折麦布（益适纯）",e:"ezetimibe · Zetia",r:"抑制肠道胆固醇吸收，常联合他汀",
+ t:"Cholesterol Absorption Inhibitor",d:"10 mg once daily, any time",s:"Joint pain, diarrhea, fatigue",i:"Bile acid sequestrants (take 2 hrs apart); cyclosporine"},
+]},
+{cat:"高血糖（2型糖尿病）",nav:"高血糖",bg:"#EAF3DE",tc:"#27500A",bc:"#C0DD97",drugs:[
+{n:"二甲双胍（格华止）",e:"metformin · Glucophage",r:"一线首选，餐后服减少胃肠反应",
+ t:"Biguanide",d:"500–2000 mg daily, taken with or after meals",s:"Nausea, diarrhea, B12 deficiency (long-term)",i:"Contrast dye (hold 48 hrs before imaging); alcohol; iodinated contrast"},
+{n:"格列美脲（亚莫利）/ 格列齐特（达美康）",e:"glimepiride / gliclazide · Amaryl",r:"磺脲类，促进胰岛素分泌",
+ t:"Sulfonylurea",d:"1–8 mg once daily with breakfast",s:"Hypoglycemia, weight gain",i:"Alcohol; NSAIDs; fluconazole (increase hypoglycemia risk)"},
+{n:"阿卡波糖（拜唐苹）",e:"acarbose · Precose",r:"α-糖苷酶抑制剂，餐中嚼服",
+ t:"Alpha-glucosidase Inhibitor",d:"25–100 mg three times daily, chewed with first bite of meal",s:"Bloating, flatulence, diarrhea",i:"Digestive enzyme supplements; neomycin; charcoal"},
+{n:"西格列汀（捷诺维）/ 沙格列汀（安立泽）",e:"sitagliptin / saxagliptin · Januvia / Onglyza",r:"DPP-4抑制剂，低血糖风险低",
+ t:"DPP-4 Inhibitor",d:"100 mg / 5 mg once daily",s:"Nasopharyngitis, rare pancreatitis, joint pain",i:"Strong CYP3A4 inhibitors for saxagliptin (ketoconazole)"},
+{n:"达格列净（安达唐）/ 恩格列净（欧唐静）",e:"dapagliflozin / empagliflozin · Farxiga / Jardiance",r:"SGLT-2抑制剂，兼顾心肾保护",
+ t:"SGLT-2 Inhibitor",d:"10 mg once daily in the morning",s:"UTI, genital yeast infection, polyuria, DKA (rare)",i:"Diuretics (dehydration); insulin (hypoglycemia risk)"},
+{n:"胰岛素（来得时 / 诺和灵N）",e:"insulin glargine / NPH · Lantus / Humulin N",r:"口服控制不佳时使用",
+ t:"Insulin (Basal)",d:"Individualized; glargine typically 10 U at bedtime to start",s:"Hypoglycemia, weight gain, injection site reactions",i:"Alcohol; beta-blockers (mask hypoglycemia symptoms)"},
+]},
+{cat:"冠心病 / 心绞痛",nav:"冠心心绞",bg:"#FCEBEB",tc:"#791F1F",bc:"#F7C1C1",drugs:[
+{n:"阿司匹林（拜阿司匹灵）",e:"aspirin · Bayer / Ecotrin",r:"抗血小板，每日100mg，饭后服",
+ t:"Antiplatelet (Salicylate)",d:"75–100 mg once daily after meals",s:"GI bleeding, stomach irritation, tinnitus (high dose)",i:"NSAIDs; warfarin; ibuprofen (reduces antiplatelet effect)"},
+{n:"氯吡格雷（波立维）",e:"clopidogrel · Plavix",r:"抗血小板，阿司匹林不耐受时替换",
+ t:"Antiplatelet (P2Y12 Inhibitor)",d:"75 mg once daily, with or without food",s:"Bleeding, bruising",i:"PPIs (especially omeprazole); NSAIDs; warfarin"},
+{n:"硝酸甘油（耐绞宁）",e:"nitroglycerin · Nitrostat",r:"急性发作舌下含服",
+ t:"Short-acting Nitrate",d:"0.3–0.6 mg sublingual as needed; repeat every 5 min (max 3 doses)",s:"Headache, hypotension, dizziness, flushing",i:"PDE-5 inhibitors (sildenafil/Viagra) — DANGEROUS combination"},
+{n:"单硝酸异山梨酯（依姆多）",e:"isosorbide mononitrate · Imdur",r:"长效硝酸酯，预防心绞痛",
+ t:"Long-acting Nitrate",d:"30–120 mg once daily in the morning",s:"Headache, flushing, hypotension",i:"PDE-5 inhibitors; alcohol"},
+{n:"他汀类（阿托伐他汀 / 瑞舒伐他汀）",e:"atorvastatin / rosuvastatin · Lipitor / Crestor",r:"稳定斑块，必须长期使用",
+ t:"Statin (HMG-CoA Reductase Inhibitor)",d:"Atorvastatin 10–80 mg or rosuvastatin 5–40 mg once daily",s:"Myalgia, elevated liver enzymes, rare rhabdomyolysis",i:"Grapefruit juice; clarithromycin; itraconazole; cyclosporine"},
+]},
+{cat:"心力衰竭",nav:"心衰",bg:"#FBEAF0",tc:"#72243E",bc:"#F4C0D1",drugs:[
+{n:"螺内酯（安体舒通）",e:"spironolactone · Aldactone",r:"保钾利尿剂，减轻水肿",
+ t:"Potassium-sparing Diuretic (Aldosterone Antagonist)",d:"12.5–50 mg once daily",s:"Hyperkalemia, gynecomastia, menstrual irregularity",i:"ACE inhibitors / ARBs (hyperkalemia); potassium supplements; NSAIDs"},
+{n:"呋塞米（速尿）",e:"furosemide · Lasix",r:"强效利尿，急性期用",
+ t:"Loop Diuretic",d:"20–80 mg once or twice daily in the morning",s:"Hypokalemia, dehydration, ototoxicity (high dose), cramps",i:"Aminoglycosides (ototoxicity); NSAIDs; lithium; digoxin (K+ loss worsens toxicity)"},
+{n:"地高辛（狄戈辛）",e:"digoxin · Lanoxin",r:"洋地黄类，合并房颤时用，注意中毒",
+ t:"Cardiac Glycoside",d:"0.0625–0.125 mg once daily in elderly (lower doses than standard)",s:"Nausea, visual disturbances (yellow halos), bradycardia, arrhythmia",i:"Amiodarone; verapamil; quinidine; diuretics (hypokalemia increases toxicity)"},
+{n:"沙库巴曲缬沙坦（诺欣妥）",e:"sacubitril/valsartan · Entresto",r:"ARNI，新型心衰用药",
+ t:"ARNI (Angiotensin Receptor-Neprilysin Inhibitor)",d:"50–200 mg twice daily",s:"Hypotension, hyperkalemia, angioedema",i:"ACE inhibitors (must stop 36 hrs before starting); aliskiren; potassium supplements"},
+]},
+{cat:"心房颤动 / 血栓预防",nav:"房颤血栓",bg:"#EEEDFE",tc:"#3C3489",bc:"#CECBF6",drugs:[
+{n:"华法林（可密定）",e:"warfarin · Coumadin",r:"需监测INR，与多种药物食物互作",
+ t:"Vitamin K Antagonist",d:"Individualized dose; target INR 2.0–3.0; take at same time each day",s:"Bleeding, bruising, skin necrosis (rare)",i:"Many drugs & foods — esp. vitamin K foods, aspirin, antibiotics, NSAIDs, amiodarone"},
+{n:"利伐沙班（拜瑞妥）/ 达比加群（泰毕全）",e:"rivaroxaban / dabigatran · Xarelto / Pradaxa",r:"新型口服抗凝药，无需常规监测",
+ t:"Direct Oral Anticoagulant (DOAC)",d:"Rivaroxaban 20 mg once daily with evening meal; Dabigatran 110–150 mg twice daily",s:"Bleeding, dyspepsia (dabigatran), anemia",i:"NSAIDs; antiplatelets; strong P-gp inhibitors (ketoconazole, rifampicin)"},
+{n:"胺碘酮（可达龙）",e:"amiodarone · Pacerone / Cordarone",r:"控制心律，需定期查甲状腺肺功能",
+ t:"Class III Antiarrhythmic",d:"100–200 mg once daily (maintenance); take with food",s:"Thyroid dysfunction, pulmonary toxicity, photosensitivity, corneal deposits, liver toxicity",i:"Warfarin (raises INR); digoxin; QT-prolonging drugs; simvastatin"},
+]},
+{cat:"脑血管病（中风预防）",nav:"中风",bg:"#E1F5EE",tc:"#085041",bc:"#9FE1CB",drugs:[
+{n:"阿司匹林（拜阿司匹灵）/ 氯吡格雷（波立维）",e:"aspirin / clopidogrel · Ecotrin / Plavix",r:"缺血性脑卒中二级预防",
+ t:"Antiplatelet",d:"Aspirin 100 mg / Clopidogrel 75 mg once daily after meals",s:"GI bleeding, bruising",i:"NSAIDs; warfarin; omeprazole (clopidogrel)"},
+{n:"他汀类（阿托伐他汀 / 瑞舒伐他汀）",e:"atorvastatin / rosuvastatin · Lipitor / Crestor",r:"颈动脉斑块/脑梗后必用",
+ t:"Statin (HMG-CoA Reductase Inhibitor)",d:"Atorvastatin 10–80 mg or rosuvastatin 5–40 mg once daily",s:"Myalgia, elevated liver enzymes, rare rhabdomyolysis",i:"Grapefruit juice; clarithromycin; itraconazole; cyclosporine"},
+{n:"银杏叶提取物（金纳多）",e:"ginkgo biloba extract · Ginkgold",r:"改善循环，辅助用药",
+ t:"Herbal / Circulatory Agent",d:"40–80 mg three times daily with meals",s:"Headache, GI upset, increased bleeding risk",i:"Anticoagulants; antiplatelets (increased bleeding); MAOIs"},
+{n:"丁苯酞（恩必普）",e:"butylphthalide (not US-approved)",r:"改善脑微循环，脑梗恢复期",
+ t:"Cerebral Microcirculation Improver",d:"200 mg three times daily (soft capsule, between meals)",s:"Liver enzyme elevation, GI discomfort, dizziness",i:"Hepatotoxic drugs; avoid in severe hepatic impairment"},
+]},
+{cat:"骨质疏松",nav:"骨质疏松",bg:"#F1EFE8",tc:"#444441",bc:"#D3D1C7",drugs:[
+{n:"碳酸钙D3（钙尔奇D）",e:"calcium carbonate + D3 · Caltrate / Os-Cal",r:"基础补充，随餐服用",
+ t:"Calcium + Vitamin D Supplement",d:"600 mg calcium + 400–800 IU D3, twice daily with meals",s:"Constipation, gas, hypercalcemia (high dose)",i:"Tetracyclines; fluoroquinolones; iron (take 2 hrs apart); thiazide diuretics (hypercalcemia)"},
+{n:"阿仑膦酸钠（福善美）",e:"alendronate · Fosamax",r:"双膦酸盐，每周1次，空腹站立服",
+ t:"Bisphosphonate",d:"70 mg once weekly, fasting, with full glass of water; stay upright 30 min",s:"Esophageal irritation, musculoskeletal pain, jaw osteonecrosis (rare, long-term)",i:"NSAIDs; calcium/antacids (take 30 min before other meds); aspirin"},
+{n:"骨化三醇（罗盖全）",e:"calcitriol · Rocaltrol",r:"活性维生素D，促进钙吸收",
+ t:"Active Vitamin D (Calcitriol)",d:"0.25–0.5 mcg once or twice daily",s:"Hypercalcemia, hypercalciuria, weakness",i:"Thiazide diuretics (hypercalcemia); magnesium antacids; cholestyramine"},
+]},
+{cat:"抗感染 / 抗病毒",nav:"病毒感染",bg:"#FFF0E6",tc:"#7A2E00",bc:"#FFBB8A",drugs:[
+{n:"阿莫西林（阿莫仙）",e:"amoxicillin · Amoxil",r:"青霉素类，常见细菌感染首选",
+ t:"Penicillin Antibiotic",d:"250–500 mg three times daily; complete full course",s:"Diarrhea, nausea, rash, allergic reaction",i:"Penicillin allergy (contraindicated); methotrexate; warfarin"},
+{n:"头孢呋辛（西力欣）/ 头孢克洛（可福乐）",e:"cefuroxime / cefaclor · Zinacef / Ceclor",r:"第二代头孢，呼吸道及泌尿道感染",
+ t:"2nd-Generation Cephalosporin",d:"250–500 mg twice daily (cefuroxime) / three times daily (cefaclor)",s:"GI upset, rash, diarrhea, C. diff risk",i:"Severe penicillin allergy (cross-reactivity ~1–2%); warfarin; alcohol"},
+{n:"左氧氟沙星（可乐必妥）",e:"levofloxacin · Levaquin",r:"氟喹诺酮类，注意老年人肌腱及QT风险",
+ t:"Fluoroquinolone Antibiotic",d:"250–500 mg once daily; take with plenty of water",s:"Tendinitis/rupture, QT prolongation, dizziness, C. diff, neuropathy",i:"Antacids/iron/zinc (take 2 hrs apart); QT-prolonging drugs; NSAIDs (seizure risk)"},
+{n:"阿奇霉素（希舒美）",e:"azithromycin · Zithromax",r:"大环内酯类，非典型病原体感染",
+ t:"Macrolide Antibiotic",d:"500 mg on day 1, then 250 mg daily on days 2–5",s:"GI upset, QT prolongation, liver enzyme elevation",i:"QT-prolonging drugs; warfarin (raises INR); cyclosporine; antacids"},
+{n:"阿昔洛韦（舒维疗）/ 伐昔洛韦（明竹欣）",e:"acyclovir / valacyclovir · Zovirax / Valtrex",r:"抗疱疹病毒，带状疱疹及单纯疱疹",
+ t:"Antiviral (Nucleoside Analogue)",d:"Valacyclovir 1 g three times daily for 7 days (herpes zoster)",s:"Nausea, headache, renal impairment (high doses), confusion in elderly",i:"NSAIDs / nephrotoxic drugs (renal risk); probenecid; cimetidine"},
+{n:"奥司他韦（达菲）",e:"oseltamivir · Tamiflu",r:"抗流感病毒，发病48小时内使用",
+ t:"Neuraminidase Inhibitor (Antiviral)",d:"75 mg twice daily for 5 days; take with food to reduce nausea",s:"Nausea, vomiting, headache, rare neuropsychiatric effects",i:"Live attenuated influenza vaccine (48 hr gap); probenecid"},
+{n:"甲硝唑（灭滴灵）",e:"metronidazole · Flagyl",r:"厌氧菌及原虫感染，注意神经毒性",
+ t:"Nitroimidazole Antibiotic",d:"400–500 mg three times daily for 7–10 days; take with or after food",s:"Metallic taste, nausea, peripheral neuropathy (long-term), dark urine",i:"Alcohol (disulfiram-like reaction — avoid during and 48 hrs after); warfarin; lithium"},
+]},
+{cat:"抗过敏",nav:"抗过敏",bg:"#F3EBF9",tc:"#4A1570",bc:"#D6AEED",drugs:[
+{n:"氯雷他定（开瑞坦）",e:"loratadine · Claritin",r:"第二代抗组胺，无嗜睡，每日1次",
+ t:"2nd-Gen Antihistamine (H1 Blocker)",d:"10 mg once daily, any time",s:"Headache, dry mouth, fatigue (minimal sedation)",i:"Ketoconazole / erythromycin (increase levels); CNS depressants"},
+{n:"西替利嗪（仙特明）",e:"cetirizine · Zyrtec",r:"第二代抗组胺，轻微镇静",
+ t:"2nd-Gen Antihistamine (H1 Blocker)",d:"5–10 mg once daily, preferably in the evening",s:"Mild drowsiness, dry mouth, headache",i:"Alcohol; CNS depressants; theophylline (reduces clearance)"},
+{n:"地氯雷他定（恩理思）",e:"desloratadine · Clarinex",r:"氯雷他定活性代谢物，效果更持久",
+ t:"2nd-Gen Antihistamine (active metabolite of loratadine)",d:"5 mg once daily, any time",s:"Headache, dry mouth, fatigue",i:"Ketoconazole; erythromycin (minor interaction)"},
+{n:"苯海拉明（苯那君）",e:"diphenhydramine · Benadryl",r:"第一代，老年人慎用，易致嗜睡及认知影响",
+ t:"1st-Gen Antihistamine (H1 Blocker)",d:"25–50 mg every 4–6 hrs (elderly: AVOID or use lowest dose)",s:"Sedation, confusion, urinary retention, dry mouth, constipation, falls risk",i:"MAOIs; CNS depressants; anticholinergics; alcohol"},
+{n:"孟鲁司特（顺尔宁）",e:"montelukast · Singulair",r:"白三烯受体拮抗剂，过敏性鼻炎及哮喘",
+ t:"Leukotriene Receptor Antagonist",d:"10 mg once daily in the evening",s:"Headache, rare neuropsychiatric effects (mood changes, nightmares)",i:"Phenobarbital; rifampin (reduce efficacy); strong CYP3A4 inducers"},
+{n:"布地奈德鼻喷剂（雷诺考特）",e:"budesonide nasal spray · Rhinocort",r:"鼻用糖皮质激素，过敏性鼻炎首选",
+ t:"Intranasal Corticosteroid",d:"1–2 sprays per nostril once daily; takes 1–2 weeks for full effect",s:"Nasal irritation, epistaxis, rarely nasal septum perforation",i:"Strong CYP3A4 inhibitors (ritonavir, ketoconazole)"},
+{n:"肾上腺素注射液（EpiPen）",e:"epinephrine · EpiPen",r:"严重过敏反应（过敏性休克）急救用",
+ t:"Sympathomimetic (Epinephrine) — Emergency Use",d:"0.3 mg IM into outer thigh; repeat in 5–15 min if needed; call emergency services",s:"Palpitations, anxiety, tremor, hypertension, arrhythmia",i:"Non-selective beta-blockers (reduced effect); MAOIs (hypertensive crisis); tricyclics"},
+]},
+];
+
+const app=document.getElementById('app');
+const nav=document.getElementById('nav');
+DATA.forEach((cat,i)=>{
+  const btn=document.createElement('a');
+  btn.className='nav-btn';
+  btn.textContent=cat.nav;
+  btn.href='#';
+  btn.style.cssText='background:'+cat.bg+';color:'+cat.tc+';border-color:'+cat.bc;
+  btn.addEventListener('click',e=>{
+    e.preventDefault();
+    const target=document.getElementById('cat-'+i);
+    if(target) target.scrollIntoView({behavior:'smooth',block:'start'});
+  });
+  nav.appendChild(btn);
+});
+DATA.forEach((cat,i)=>{
+  const sec=document.createElement('div');
+  sec.id='cat-'+i;
+  const hdr=document.createElement('div');
+  hdr.className='ch';
+  const badge=document.createElement('span');
+  badge.className='badge';
+  badge.style.cssText='background:'+cat.bg+';color:'+cat.tc+';border:1px solid '+cat.bc;
+  badge.textContent=cat.cat;
+  const arr=document.createElement('span');
+  arr.className='arr open';
+  arr.textContent='▶';
+  hdr.appendChild(badge);
+  hdr.appendChild(arr);
+  const grid=document.createElement('div');
+  grid.className='grid';
+  cat.drugs.forEach(d=>{
+    const c=document.createElement('div');
+    c.className='card';
+    c.dataset.search=[d.n,d.e,d.r,d.t,d.d,d.s,d.i].join(' ').toLowerCase();
+    c.style.setProperty('--cat-bg',cat.bg);
+    c.style.setProperty('--cat-tc',cat.tc);
+    c.innerHTML=
+      '<div class="card-inner">'+
+        '<div class="card-front">'+
+          '<div class="cn">'+d.n+'</div>'+
+          '<div class="en">'+d.e+'</div>'+
+          '<div class="note">'+d.r+'</div>'+
+          '<div class="dose">'+d.d+'</div>'+
+        '</div>'+
+        '<div class="card-back">'+
+          '<span class="bk-type">'+d.t+'</span>'+
+          '<div class="bk-row bk-side">'+d.s+'</div>'+
+          '<div class="bk-row bk-avoid">'+d.i+'</div>'+
+        '</div>'+
+      '</div>';
+    c.addEventListener('click',()=>c.classList.toggle('flipped'));
+    grid.appendChild(c);
+  });
+  hdr.addEventListener('click',()=>{
+    const open=grid.style.display!=='none';
+    grid.style.display=open?'none':'grid';
+    arr.classList.toggle('open',!open);
+  });
+  sec.appendChild(hdr);
+  sec.appendChild(grid);
+  app.appendChild(sec);
+});
+
+// equalise card heights within each grid after render
+function equaliseHeights(){
+  document.querySelectorAll('.grid').forEach(g=>{
+    g.querySelectorAll('.card-inner,.card-front,.card-back').forEach(el=>el.style.minHeight='');
+    let max=0;
+    g.querySelectorAll('.card-front').forEach(el=>max=Math.max(max,el.scrollHeight));
+    g.querySelectorAll('.card-back').forEach(el=>max=Math.max(max,el.scrollHeight));
+    g.querySelectorAll('.card,.card-inner,.card-front,.card-back').forEach(el=>el.style.minHeight=max+'px');
+  });
+}
+equaliseHeights();
+window.addEventListener('resize',equaliseHeights);
+
+document.getElementById('search').addEventListener('input',function(){
+  const q=this.value.trim().toLowerCase();
+  document.querySelectorAll('.grid').forEach(grid=>{
+    let anyVisible=false;
+    grid.querySelectorAll('.card').forEach(card=>{
+      const match=!q||card.dataset.search.includes(q);
+      card.classList.toggle('hidden',!match);
+      if(match) anyVisible=true;
+      // highlight front-face text
+      card.querySelectorAll('.cn,.en,.note').forEach(el=>{
+        el.innerHTML=el.textContent;
+        if(q&&match){
+          const re=new RegExp('('+q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi');
+          el.innerHTML=el.textContent.replace(re,'<mark>$1</mark>');
+        }
+      });
+    });
+    const sec=grid.parentElement;
+    sec.style.display=anyVisible||!q?'':'none';
+    if(q&&anyVisible) grid.style.display='grid';
+  });
+});
+</script>
+</body>
+</html>
